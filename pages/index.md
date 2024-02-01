@@ -29,15 +29,15 @@ with recursive yearly_sales as (
 select * from yearly_sales
 ```
 
-<LineChart title="Projected Revenue" data={growth_in_sales} x="year" y="sales" yMax={growth_in_sales[data.growth_in_sales.length - 1].sales < 500 ? 500 : growth_in_sales[data.growth_in_sales.length - 1].sales} yFmt='"$"0"M"'>
+<LineChart title="Projected Revenue" data={growth_in_sales} x="year" y="sales" yMax={growth_in_sales[8].sales < 500 ? 500 : growth_in_sales[8].sales} yFmt='"$"0"M"'>
   <ReferenceLine y={target} label=Target />
 </LineChart>
 
-{#if growth_in_sales[data.growth_in_sales.length - 1].sales > 2*target}
+{#if growth_in_sales[8].sales > 2*target}
   <Alert status=success>
     To the moon! 🚀🚀🚀
   </Alert>
-{:else if growth_in_sales[data.growth_in_sales.length - 1].sales > target}
+{:else if growth_in_sales[8].sales > target}
   <Alert status=success>
     Success! The sales have exceeded the target.
   </Alert>
