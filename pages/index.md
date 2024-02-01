@@ -1,85 +1,72 @@
 ---
-sales_target: 300
+growth: 0.05
+target: 400
 ---
 
+# Will we make our sales target?
+
+<Dropdown name=growth_rate title="Growth Rate">
+    <DropdownOption value="0.05" valueLabel="5%"/>
+    <DropdownOption value="0.1" valueLabel="10%"/>
+    <DropdownOption value="0.15" valueLabel="15%"/>
+    <DropdownOption value="0.2" valueLabel="20%"/>
+</Dropdown>
+
+<Dropdown name=start_value title="Start Value">
+    <DropdownOption value="100" valueLabel="100"/>
+    <DropdownOption value="200" valueLabel="200"/>
+    <DropdownOption value="300" valueLabel="300"/>
+    <DropdownOption value="400" valueLabel="400"/>
+</Dropdown>
 
 
-```sql sales_by_country
-select 'Canada' as country, 100 as sales
+
+```sql growth_in_sales
+select ${inputs.start_value} as sales, 2001 as year
 union all
-select 'US' as country, 250 as sales
+select ${inputs.start_value} * (1+${inputs.growth_rate}) as sales, 2002 as year
 union all
-select 'UK' as country, 130 as sales
+select ${inputs.start_value} * (1+ ${inputs.growth_rate})^2 as sales, 2003 as year
 union all
-select 'Australia' as country, 95 as sales
+select ${inputs.start_value} * (1+ ${inputs.growth_rate})^3 as sales, 2004 as year
+union all
+select ${inputs.start_value} * (1+ ${inputs.growth_rate})^4 as sales, 2005 as year
+union all
+select ${inputs.start_value} * (1+ ${inputs.growth_rate})^5 as sales, 2006 as year
+union all
+select ${inputs.start_value} * (1+ ${inputs.growth_rate})^6 as sales, 2007 as year
+union all
+select ${inputs.start_value} * (1+ ${inputs.growth_rate})^7 as sales, 2008 as year
+union all
+select ${inputs.start_value} * (1+ ${inputs.growth_rate})^8 as sales, 2009 as year
+order by year
 ```
 
-```sql test_data
-select country as name, sales as value
-from ${sales_by_country}
-```
+<LineChart title="Projected Revenue" data={growth_in_sales} x="year" y="sales" yMax={growth_in_sales[data.growth_in_sales.length - 1].sales < 500 ? 500 : growth_in_sales[data.growth_in_sales.length - 1].sales} yFmt='"$"0"M"'>
+<ReferenceLine y={target} label=Target />
+</LineChart>
 
-<ECharts config={
-    {
-      title: {
-        text: 'Treemap Example',
-        left: 'center'
-      },
-        tooltip: {
-            formatter: '{b}: {c}'
-        },
-      series: [
-        {
-          type: 'treemap',
-          visibleMin: 300,
-          label: {
-            show: true,
-            formatter: '{b}'
-          },
-          itemStyle: {
-            borderColor: '#fff'
-          },
-          roam: false,
-          nodeClick: false,
-          data: data.test_data,
-          breadcrumb: {
-            show: false
-          }
-        }
-      ]
-      }
-    }
-    on:click={click_handler}
-/>
+{#if growth_in_sales[data.growth_in_sales.length - 1].sales > 2*target}
 
-{$name}
+<Alert status=success>
+  To the moon! 🚀🚀🚀
+</Alert>
 
-```sql filtered_sales
-select *
-from ${sales_by_country}
-where country = '${$name}'
-```
 
-<DataTable data={filtered_sales} />
+{:else if growth_in_sales[data.growth_in_sales.length - 1].sales > target}
 
-```sql filtered_sales2
-select '${sales_target}' as name
-```
+<Alert status=success>
+  Success! The sales have exceeded the target.
+</Alert>
+
+{:else}
+
+<Alert status=warning>
+  Not quite there yet. Keep pushing!
+</Alert>
+
+{/if}
 
 
 
-<script>
 
-    // Create a writable store for name
-    let name = writable('');
-
-    let other_name = 2;
-
-    function click_handler(ev) {
-        if (ev.detail && ev.detail.data) {
-            // Update the store with the new name
-            name.set(ev.detail.data.name);
-            console.log($name); // Log the current value of the name
-        }
-    }
-</script>
